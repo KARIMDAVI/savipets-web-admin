@@ -1,0 +1,239 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  -webkit-text-size-adjust: 100%; /* Prevent iOS text size adjust */
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+  touch-action: manipulation; /* Improve touch responsiveness */
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Mobile-friendly touch targets */
+/* Exclude compact controls and Ant Design components from min-height */
+button:not(.compact-control-button):not(.ant-btn-text):not(.ant-btn-icon-only):not(.compact-switch),
+a:not(.compact-control-button),
+input:not([type="checkbox"]):not([type="radio"]):not(.compact-control):not(.ant-input),
+select:not(.compact-control):not(.ant-select),
+textarea:not(.compact-control):not(.ant-input) {
+  min-height: 44px; /* iOS recommended minimum touch target */
+  min-width: 44px;
+}
+
+/* Compact controls exception - allow smaller sizes for control panels */
+.compact-control-button,
+.compact-control {
+  min-height: 22px !important;
+  min-width: 22px !important;
+}
+
+/* Responsive table utilities */
+@media (max-width: 768px) {
+  /* Ensure tables are scrollable on mobile */
+  .ant-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Improve card spacing on mobile */
+  .ant-card {
+    margin-bottom: 16px;
+  }
+  
+  /* Better spacing for form items on mobile */
+  .ant-form-item {
+    margin-bottom: 20px;
+  }
+  
+  /* Ensure buttons are touch-friendly (except compact controls) */
+  .ant-btn:not(.compact-control-button) {
+    min-height: 44px;
+    padding: 8px 16px;
+  }
+  
+  /* Compact controls stay small even on mobile */
+  .compact-control-button {
+    min-height: 22px !important;
+    min-width: 22px !important;
+  }
+  
+  /* Improve spacing for lists */
+  .ant-list-item {
+    padding: 12px 0;
+  }
+  
+  /* Better typography on mobile */
+  h1, .ant-typography h1 {
+    font-size: 24px !important;
+  }
+  
+  h2, .ant-typography h2 {
+    font-size: 20px !important;
+  }
+  
+  h3, .ant-typography h3 {
+    font-size: 18px !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .ant-card {
+    margin-bottom: 20px;
+  }
+}
+
+/* Prevent text selection on mobile for better UX */
+@media (max-width: 768px) {
+  button, .ant-btn {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+}
+
+/* Compact Switch Styling for Control Panels - Ultra Compact */
+.compact-switch.ant-switch-small {
+  min-width: 24px !important;
+  width: 24px !important;
+  min-height: 14px !important; /* Override global min-height */
+  height: 14px !important;
+  line-height: 14px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.compact-switch.ant-switch-small .ant-switch-handle {
+  width: 10px !important;
+  height: 10px !important;
+  top: 2px !important;
+  left: 2px !important;
+}
+
+.compact-switch.ant-switch-small.ant-switch-checked .ant-switch-handle {
+  left: calc(100% - 12px) !important;
+}
+
+.compact-switch.ant-switch-small .ant-switch-handle::before {
+  border-radius: 2px !important;
+}
+
+.compact-switch.ant-switch-small .ant-switch-inner {
+  display: none !important; /* Remove ON/OFF text to save space */
+}
+
+.compact-switch.ant-switch-small::after {
+  display: none !important;
+}
+
+/* Remove any extra spacing around the switch */
+.compact-switch.ant-switch-small .ant-switch-loading-icon,
+.compact-switch.ant-switch-small .ant-switch-loading-icon svg {
+  width: 10px !important;
+  height: 10px !important;
+}
+
+/* Focus visible styles for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #f0932b;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default focus for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Custom focus styles for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #f0932b;
+  outline-offset: 2px;
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scaleOut {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.95); opacity: 0; }
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
