@@ -2,25 +2,28 @@
  * CRM Export Utilities
  * 
  * Utilities for exporting CRM data to CSV, Excel, and PDF formats.
+ * 
+ * Migration Note: Replaced xlsx with exceljs (v4.4.0) to address security vulnerabilities.
+ * exceljs is actively maintained and has no known vulnerabilities.
  */
 
 import type { User, Booking } from '@/types';
 import type { ClientNote } from '../types/crm.types';
 
 // Dynamic imports for optional dependencies
-let XLSX: any = null;
+let ExcelJS: any = null;
 let jsPDF: any = null;
 
-// Lazy load XLSX
-const loadXLSX = async () => {
-  if (!XLSX) {
+// Lazy load ExcelJS
+const loadExcelJS = async () => {
+  if (!ExcelJS) {
     try {
-      XLSX = await import('xlsx');
+      ExcelJS = await import('exceljs');
     } catch (error) {
-      console.warn('XLSX library not available. Excel export disabled.');
+      console.warn('ExcelJS library not available. Excel export disabled.');
     }
   }
-  return XLSX;
+  return ExcelJS;
 };
 
 // Lazy load jsPDF
@@ -162,15 +165,17 @@ export const exportBookingsToCSV = (bookings: Booking[]): void => {
 
 /**
  * Export clients data to Excel (XLSX)
+ * 
+ * Uses exceljs instead of xlsx for better security and maintenance.
  */
 export const exportClientsToExcel = async (
   clients: User[],
   bookings: Booking[],
   notes: ClientNote[]
 ): Promise<void> => {
-  const XLSXLib = await loadXLSX();
-  if (!XLSXLib) {
-    throw new Error('XLSX library not available. Please install xlsx package.');
+  const ExcelJSLib = await loadExcelJS();
+  if (!ExcelJSLib) {
+    throw new Error('ExcelJS library not available. Please install exceljs package.');
   }
 
   const exportData = clients.map((client) => {
@@ -196,30 +201,65 @@ export const exportClientsToExcel = async (
     };
   });
 
-  const workbook = XLSXLib.utils.book_new();
-  const worksheet = XLSXLib.utils.json_to_sheet(exportData);
+  // Create workbook and worksheet using exceljs
+  const workbook = new ExcelJSLib.Workbook();
+  const worksheet = workbook.addWorksheet('Clients');
+  
+  // Add headers
+  const headers = Object.keys(exportData[0] || {});
+  worksheet.addRow(headers);
+  
+  // Style header row
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE0E0E0' }
+  };
+  
+  // Add data rows
+  exportData.forEach((row) => {
+    worksheet.addRow(Object.values(row));
+  });
   
   // Set column widths
-  const columnWidths = [
-    { wch: 15 }, // Client ID
-    { wch: 15 }, // First Name
-    { wch: 15 }, // Last Name
-    { wch: 25 }, // Email
-    { wch: 15 }, // Phone
-    { wch: 15 }, // Total Bookings
-    { wch: 12 }, // Total Spent
-    { wch: 18 }, // Last Booking Date
-    { wch: 12 }, // Notes Count
-    { wch: 15 }, // Account Created
-    { wch: 10 }, // Status
-    { wch: 10 }, // Rating
+  worksheet.columns = [
+    { width: 15 }, // Client ID
+    { width: 15 }, // First Name
+    { width: 15 }, // Last Name
+    { width: 25 }, // Email
+    { width: 15 }, // Phone
+    { width: 15 }, // Total Bookings
+    { width: 12 }, // Total Spent
+    { width: 18 }, // Last Booking Date
+    { width: 12 }, // Notes Count
+    { width: 15 }, // Account Created
+    { width: 10 }, // Status
+    { width: 10 }, // Rating
   ];
-  worksheet['!cols'] = columnWidths;
-
-  XLSXLib.utils.book_append_sheet(workbook, worksheet, 'Clients');
   
+  // Format Total Spent column as currency
+  const totalSpentCol = worksheet.getColumn(7);
+  totalSpentCol.numFmt = '$#,##0.00';
+  
+  // Generate file and download
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { 
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+  });
+  
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
   const timestamp = new Date().toISOString().split('T')[0];
-  XLSXLib.writeFile(workbook, `crm-clients-${timestamp}.xlsx`);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `crm-clients-${timestamp}.xlsx`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 /**
